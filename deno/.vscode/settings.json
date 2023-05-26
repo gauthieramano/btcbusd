@@ -3,5 +3,10 @@
     "titleBar.activeBackground": "#009933",
     "titleBar.inactiveBackground": "#004411",
     "activityBar.background": "#004411"
-  }
+  },
+
+  "deno.enable": true,
+  "deno.lint": true,
+  "editor.formatOnSave": true,
+  "[typescript]": { "editor.defaultFormatter": "denoland.vscode-deno" }
 }

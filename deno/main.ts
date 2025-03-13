@@ -4,6 +4,7 @@ const lows = [...new Array(6)].fill(200000);
 const highs = [...new Array(6)].fill(0);
 let prevIndex = 0;
 let time = 0;
+let wsIndex = 0;
 
 const pad4 = (value: number) => value.toString().padStart(4, " ");
 const pad7 = (value: string) => value.padStart(7, " ");
@@ -11,6 +12,8 @@ const format = (value: number) => pad7(new Intl.NumberFormat().format(value));
 
 const initWs = () => {
   ws = new WebSocket("wss://stream.binance.com:9443/ws/btcfdusd@trade");
+
+  wsIndex++;
 
   ws.onclose = () => {
     console.log("----------\n\nBTCFDUSD WS closed\n\n----------");
@@ -74,6 +77,7 @@ const initWs = () => {
       const high = Math.max(...highs);
 
       const prices = [
+        wsIndex,
         `${format(high)} -${pad4(high - price)}`,
         format(price),
         `${format(low)} -${pad4(price - low)}`,

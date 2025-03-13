@@ -5,8 +5,9 @@ const highs = [...new Array(6)].fill(0);
 let prevIndex = 0;
 let time = 0;
 
-const pad = (value: string) => value.padStart(7, " ");
-const format = (value: number) => pad(new Intl.NumberFormat().format(value));
+const pad4 = (value: number) => value.toString().padStart(4, " ");
+const pad7 = (value: string) => value.padStart(7, " ");
+const format = (value: number) => pad7(new Intl.NumberFormat().format(value));
 
 const initWs = () => {
   ws = new WebSocket("wss://stream.binance.com:9443/ws/btcfdusd@trade");
@@ -73,9 +74,9 @@ const initWs = () => {
       const high = Math.max(...highs);
 
       const prices = [
-        `${format(high)} - ${high - price}`,
+        `${format(high)} -${pad4(high - price)}`,
         format(price),
-        `${format(low)} - ${price - low}`,
+        `${format(low)} -${pad4(price - low)}`,
       ].join(" \n");
 
       console.log(prices);

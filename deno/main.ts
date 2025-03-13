@@ -1,4 +1,4 @@
-let ws = new WebSocket("wss://stream.binance.com:9443/ws/btcfdusd@trade");
+let ws;
 
 const lows = [...new Array(6)].fill(200000);
 const highs = [...new Array(6)].fill(0);
@@ -8,67 +8,79 @@ let time = 0;
 const pad = (value: string) => value.padStart(7, " ");
 const format = (value: number) => pad(new Intl.NumberFormat().format(value));
 
-ws.onmessage = (event) => {
-  /**
-   * ```json
-   * {
-   *   "e": "trade",     // Event type
-   *   "E": 123456789,   // Event time
-   *   "s": "BNBBTC",    // Symbol
-   *   "t": 12345,       // Trade ID
-   *   "p": "0.001",     // Price
-   *   "q": "100",       // Quantity
-   *   "b": 88,          // Buyer order ID
-   *   "a": 50,          // Seller order ID
-   *   "T": 123456785,   // Trade time
-   *   "m": true,        // Is the buyer the market maker?
-   *   "M": true         // Ignore
-   * }
-   * ```
-   */
-  // const { E, p, q } = JSON.parse(event.data);
+const initWs = () => {
+  ws = new WebSocket("wss://stream.binance.com:9443/ws/btcfdusd@trade");
 
-  // const date = new Date(E).toUTCString();
-  // const price = parseFloat(p).toFixed(0);
-  // const quantity = q;
+  ws.onclose = () => {
+    console.log("----------\n\nBTCFDUSD WS closed\n\n----------");
 
-  // {
-  //   date: 'Fri, 19 May 2023 23:01:37 GMT',
-  //   price: '26875.95',
-  //   quantity: '0.00102000'
-  // }
+    initWs();
+  };
 
-  //console.log({ date, price, quantity });
+  ws.onmessage = (event) => {
+    /**
+     * ```json
+     * {
+     *   "e": "trade",     // Event type
+     *   "E": 123456789,   // Event time
+     *   "s": "BNBBTC",    // Symbol
+     *   "t": 12345,       // Trade ID
+     *   "p": "0.001",     // Price
+     *   "q": "100",       // Quantity
+     *   "b": 88,          // Buyer order ID
+     *   "a": 50,          // Seller order ID
+     *   "T": 123456785,   // Trade time
+     *   "m": true,        // Is the buyer the market maker?
+     *   "M": true         // Ignore
+     * }
+     * ```
+     */
+    // const { E, p, q } = JSON.parse(event.data);
 
-  const { E, p } = JSON.parse(event.data);
+    // const date = new Date(E).toUTCString();
+    // const price = parseFloat(p).toFixed(0);
+    // const quantity = q;
 
-  const price = parseInt(p);
-  const index = Math.floor((E % 60000) / 10000);
-  const isNewIndex = prevIndex !== index;
+    // {
+    //   date: 'Fri, 19 May 2023 23:01:37 GMT',
+    //   price: '26875.95',
+    //   quantity: '0.00102000'
+    // }
 
-  if (isNewIndex) {
-    prevIndex = index;
-  }
+    //console.log({ date, price, quantity });
 
-  if (isNewIndex || price < lows[index]) {
-    lows[index] = price;
-  }
-  if (isNewIndex || price > highs[index]) {
-    highs[index] = price;
-  }
+    const { E, p } = JSON.parse(event.data);
 
-  if (E > time) {
-    time = E + 1000;
+    const price = parseInt(p);
+    const index = Math.floor((E % 60000) / 10000);
+    const isNewIndex = prevIndex !== index;
 
-    const low = Math.min(...lows);
-    const high = Math.max(...highs);
+    if (isNewIndex) {
+      prevIndex = index;
+    }
 
-    const prices = [
-      `${format(high)} - ${high - price}`,
-      format(price),
-      `${format(low)} - ${price - low}`,
-    ].join(" \n");
+    if (isNewIndex || price < lows[index]) {
+      lows[index] = price;
+    }
+    if (isNewIndex || price > highs[index]) {
+      highs[index] = price;
+    }
 
-    console.log(prices);
-  }
+    if (E > time) {
+      time = E + 1000;
+
+      const low = Math.min(...lows);
+      const high = Math.max(...highs);
+
+      const prices = [
+        `${format(high)} - ${high - price}`,
+        format(price),
+        `${format(low)} - ${price - low}`,
+      ].join(" \n");
+
+      console.log(prices);
+    }
+  };
 };
+
+initWs();

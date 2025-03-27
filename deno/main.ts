@@ -11,7 +11,7 @@ const pad7 = (value: string) => value.padStart(7, " ");
 const format = (value: number) => pad7(new Intl.NumberFormat().format(value));
 
 const initWs = () => {
-  ws = new WebSocket("wss://stream.binance.com:9443/ws/btcfdusd@trade");
+  ws = new WebSocket("wss://stream.binance.com:9443/ws/btcusdc@trade");
 
   wsIndex++;
 

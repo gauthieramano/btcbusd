@@ -1,4 +1,4 @@
-let ws;
+let ws: WebSocket;
 
 const lows = [...new Array(6)].fill(200000);
 const highs = [...new Array(6)].fill(0);
